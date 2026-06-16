@@ -12,12 +12,12 @@ import lombok.Data;
 @Entity
 @Data
 public class Perfil {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank(message = "Descrição cannot be blank")
-    private String descricao;
+    @NotBlank(message = "Description cannot be blank")
+    private String description;
     
 }

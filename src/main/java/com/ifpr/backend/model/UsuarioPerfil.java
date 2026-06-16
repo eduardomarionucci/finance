@@ -8,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Entity
 @Data
@@ -19,10 +21,11 @@ public class UsuarioPerfil {
 
     @ManyToOne
     @JoinColumn(name = "id_perfil")
+    @NotBlank(message = "Perfil cannot be blank")
     private Perfil perfil;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-    @JsonIgnore
+    @NotBlank(message = "Usuário cannot be blank")
     private User usuario;
 }
