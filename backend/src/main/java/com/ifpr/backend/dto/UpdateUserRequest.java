@@ -1,0 +1,18 @@
+package com.ifpr.backend.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public class UpdateUserRequest {
+    @NotBlank(message = "Name cannot be blank")
+    @Size(min = 2, max = 100, message = "Name must have between 2 and 100 characters")
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}

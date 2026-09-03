@@ -1,0 +1,15 @@
+{
+  "root": [
+    "./vite.config.ts",
+    "./src/app.tsx",
+    "./src/main.tsx",
+    "./src/components/ui/button.tsx",
+    "./src/components/ui/input.tsx",
+    "./src/components/ui/tabs.tsx",
+    "./src/layout/authlayout.tsx",
+    "./src/lib/utils.ts",
+    "./src/pages/authpage.tsx"
+  ],
+  "errors": true,
+  "version": "6.0.3"
+}
