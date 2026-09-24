@@ -1,0 +1,19 @@
+meta {
+  name: Excluir perfil
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/perfil/{{perfilId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 204
+}

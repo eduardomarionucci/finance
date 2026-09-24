@@ -1,0 +1,25 @@
+meta {
+  name: Atualizar usuario atual
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/v1/users/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Usuario Atualizado"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

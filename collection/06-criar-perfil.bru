@@ -1,0 +1,29 @@
+meta {
+  name: Criar perfil
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/perfil
+  body: form-urlencoded
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:form-urlencoded {
+  description: Perfil de teste
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("perfilId", res.body.id);
+  }
+}
+
+assert {
+  res.status: eq 201
+}

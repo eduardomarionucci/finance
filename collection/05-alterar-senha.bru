@@ -1,0 +1,32 @@
+meta {
+  name: Alterar senha
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/users/me/password
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "currentPassword": "{{password}}",
+    "newPassword": "{{newPassword}}"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("password", bru.getVar("newPassword"));
+  }
+}
+
+assert {
+  res.status: eq 200
+}
