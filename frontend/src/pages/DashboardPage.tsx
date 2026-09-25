@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   BarChart3,
   Bell,
@@ -54,12 +55,11 @@ type Category = {
   iconClass: string;
 };
 
-const categories: Category[] = [
+const categories: Omit<Category, "percentage">[] = [
   {
     name: "Moradia",
     amount: 8320,
     transactions: 24,
-    percentage: 38,
     icon: Home,
     barClass: "bg-pink-500",
     iconClass: "bg-pink-100 text-pink-600",
@@ -68,7 +68,6 @@ const categories: Category[] = [
     name: "Alimentação",
     amount: 5180,
     transactions: 18,
-    percentage: 24,
     icon: Utensils,
     barClass: "bg-violet-500",
     iconClass: "bg-violet-100 text-violet-600",
@@ -77,7 +76,6 @@ const categories: Category[] = [
     name: "Lazer",
     amount: 3760,
     transactions: 10,
-    percentage: 17,
     icon: Smile,
     barClass: "bg-blue-500",
     iconClass: "bg-blue-100 text-blue-600",
@@ -86,7 +84,6 @@ const categories: Category[] = [
     name: "Educação",
     amount: 2910,
     transactions: 7,
-    percentage: 13,
     icon: GraduationCap,
     barClass: "bg-teal-500",
     iconClass: "bg-teal-100 text-teal-600",
@@ -95,7 +92,6 @@ const categories: Category[] = [
     name: "Saúde",
     amount: 1420,
     transactions: 6,
-    percentage: 8,
     icon: Bandage,
     barClass: "bg-emerald-500",
     iconClass: "bg-emerald-100 text-emerald-600",
@@ -105,7 +101,7 @@ const categories: Category[] = [
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
-  maximumFractionDigits: 0,
+  maximumFractionDigits: 2,
 });
 
 function CategoryChart({ items }: { items: Category[] }) {
@@ -119,18 +115,18 @@ function CategoryChart({ items }: { items: Category[] }) {
 
         return (
           <div key={category.name} className="flex h-full min-w-0 flex-1 flex-col items-center gap-3">
-            <div className="relative flex h-full w-14 items-end justify-center">
+            <div className="relative flex min-h-0 w-full max-w-14 flex-1 items-end justify-center">
               <div
-                className={`relative w-full rounded-t-3xl ${category.barClass}`}
+                className={`relative w-full rounded-t-3xl transition-[height] duration-500 motion-reduce:transition-none ${category.barClass}`}
                 style={{ height }}
                 title={`${category.name}: ${currencyFormatter.format(category.amount)}`}
               >
-                <span className="absolute bottom-3 left-1/2 inline-flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full bg-white shadow-sm">
+                <span className="absolute -top-2 left-1/2 inline-flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full bg-white shadow-sm">
                   <Icon className="h-4 w-4 text-slate-700" />
                 </span>
               </div>
             </div>
-            <span className="truncate text-xs font-medium text-slate-500">{category.name}</span>
+            <span className="w-full truncate text-center text-xs font-medium text-slate-500">{category.name}</span>
           </div>
         );
       })}
@@ -138,7 +134,10 @@ function CategoryChart({ items }: { items: Category[] }) {
   );
 }
 
-function CategoryList({ items }: { items: Category[] }) {
+function CategoryList({ items, onAmountChange }: {
+  items: Category[];
+  onAmountChange: (name: string, amount: number) => void;
+}) {
   return (
     <ul className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50">
       {items.map((category) => {
@@ -154,7 +153,26 @@ function CategoryList({ items }: { items: Category[] }) {
               <p className="text-xs text-slate-500">{category.transactions} transações</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold text-rose-600">- {currencyFormatter.format(category.amount)}</p>
+              <label className="flex items-center gap-2 text-sm font-semibold text-rose-600">
+                <span>R$</span>
+                <Input
+                  aria-label={`Despesa de ${category.name} em reais`}
+                  type="number"
+                  min="0"
+                  max="999999999"
+                  step="0.01"
+                  value={category.amount}
+                  onChange={(event) => {
+                    const amount = event.currentTarget.valueAsNumber;
+                    if (Number.isFinite(amount) && amount >= 0 && amount <= 999999999) {
+                      onAmountChange(category.name, amount);
+                    } else if (event.currentTarget.value === "") {
+                      onAmountChange(category.name, 0);
+                    }
+                  }}
+                  className="h-9 w-28 bg-white text-right"
+                />
+              </label>
               <p className="text-sm font-medium text-slate-500">{category.percentage}%</p>
             </div>
           </li>
@@ -165,6 +183,19 @@ function CategoryList({ items }: { items: Category[] }) {
 }
 
 export default function DashboardPage() {
+  const [expenses, setExpenses] = useState(categories);
+  const totalExpenses = expenses.reduce((sum, category) => sum + category.amount, 0);
+  const chartCategories = expenses.map((category) => ({
+    ...category,
+    percentage: totalExpenses > 0 ? Math.round(category.amount / totalExpenses * 1000) / 10 : 0,
+  }));
+
+  function updateAmount(name: string, amount: number) {
+    setExpenses((current) => current.map((category) =>
+      category.name === name ? { ...category, amount } : category,
+    ));
+  }
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen w-full bg-slate-50 font-sans">
@@ -264,7 +295,7 @@ export default function DashboardPage() {
                 <div className="mb-5 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-900">Despesas por categoria</p>
-                    <p className="text-sm text-slate-500">Últimos 30 dias</p>
+                    <p className="text-sm text-slate-500">Dados de demonstração · edite os valores abaixo</p>
                   </div>
                   <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
                     {categories.length} categorias
@@ -272,10 +303,16 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-end justify-between gap-3 pb-6">
-                  <CategoryChart items={categories} />
+                  <CategoryChart items={chartCategories} />
                 </div>
 
-                <CategoryList items={categories} />
+                <p className="mb-4 text-sm font-semibold text-slate-900" aria-live="polite">
+                  Total: {currencyFormatter.format(totalExpenses)}
+                </p>
+                {totalExpenses === 0 && (
+                  <p className="mb-4 text-sm text-slate-500">Nenhuma despesa. Informe um valor para visualizar o gráfico.</p>
+                )}
+                <CategoryList items={chartCategories} onAmountChange={updateAmount} />
               </article>
 
               <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
